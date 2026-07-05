@@ -1,321 +1,74 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="public/wide-logo-light.png">
-    <source media="(prefers-color-scheme: light)" srcset="public/wide-logo-dark.png">
-    <img src="public/wide-logo-light.png" alt="tududi" width="400">
-  </picture>
-</p>
+# DoNext — AI 驱动的极简任务管理
 
-<p align="center">
-  <h2 align="center">Productivity made simple</p></h2>
-  <p align="center">Organize your life and projects with a clear, hierarchical structure,<br>
-  smart recurring tasks, and seamless Telegram integration.<br>
-  Get focused, stay productive, and keep your data private.
-  </p>
-</p>
+**用一句话描述你要做的事，AI 帮你拆成可执行的任务清单。**
 
-![Light Mode Screenshot](screenshots/all-light.png)
+DoNext 是我基于开源项目 [tududi](https://github.com/chrisvel/tududi)（MIT License）二次开发的极简任务管理应用。我把原本功能繁多的界面重构为两个核心视图 —— **All Tasks 任务总表** 和 **Notes 笔记**，并接入大模型实现 **自然语言拆分任务**。
 
-More screenshots are [available here](#screenshots).
+> 🔗 **在线 Demo**：（部署后填写）— 登录页有演示账号，点击即可体验
+>
+> English: DoNext is a minimalist, AI-powered task manager. Type what you need to do in natural language and the LLM breaks it down into structured, actionable tasks. Built on top of the open-source project tududi (MIT).
 
----
+## ✨ 核心功能
 
-## 💖 Enjoying tududi?
+- **AI 任务拆分**：输入自然语言（如"下周三前完成产品发布准备"），调用 DeepSeek API 自动拆解为带优先级、截止日期的结构化子任务并直接入库
+- **All Tasks 任务总表**：跨项目统一表格视图，支持排序、筛选、状态切换，替代原有的多层级导航
+- **Notes 笔记**：轻量笔记，与任务并列的第二视图
+- **多设备可用**：响应式 Web 应用，桌面 / 手机浏览器均可使用
+- **多用户与鉴权**：会话登录、可选注册、演示模式（`DEMO_MODE=true` 时登录页展示演示账号）
 
-Help keep it free and actively developed by [buying me a coffee](https://coff.ee/chrisveleris) ☕, [becoming a sponsor](https://github.com/sponsors/chrisvel), or [supporting on Patreon](https://www.patreon.com/ChrisVeleris). You can also support the project by purchasing a **hosted subscription** for a hassle-free, managed solution. Every contribution helps maintain this project and build new features!
+## 🔨 我做了什么（vs. 上游）
 
----
+| 模块 | 改动 |
+|---|---|
+| `backend/modules/ai-tasks/` | **新增**：AI 任务拆分模块 —— DeepSeek 接入、提示词规则（`TASK_SPLIT_RULES.md`）、解析与建任务服务、REST 路由 |
+| `backend/models/ai_input_log.js` + migration | **新增**：AI 输入审计日志表，记录每次调用与产出任务数 |
+| AI 每日限流 | **新增**：基于审计日志的全局每日调用上限（`AI_DAILY_LIMIT`），保护 demo 环境的 API 预算 |
+| `frontend/components/AllTasks.tsx` | **新增**：统一任务表格页 |
+| 导航 / 信息架构 | **重构**：砍掉多余页面，聚焦 All Tasks + Notes 双视图 |
+| 演示模式 | **新增**：`DEMO_MODE` 配置 + 登录页一键填充演示账号 |
 
-## 🚀 How It Works
+上游项目提供了任务/项目数据模型、鉴权、i18n 等基础设施；完整的上游说明见 [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md)。
 
-This app allows users to manage their tasks, projects, areas, notes, and tags in an organized way. Users can create tasks, projects, areas (to group projects), notes, and tags. Each task can be associated with a project, and both tasks and notes can be tagged for better organization. Projects can belong to areas and can also have multiple notes and tags. This structure helps users categorize and track their work efficiently, whether they’re managing individual tasks, larger projects, or keeping detailed notes.
+## 🧱 技术栈
 
-## 🧠 Philosophy
+- **前端**：React 18 + TypeScript + Tailwind CSS（Webpack 构建）
+- **后端**：Node.js + Express + Sequelize（SQLite，可平滑切换 Postgres）
+- **AI**：DeepSeek Chat API（OpenAI 兼容 SDK）
+- **部署**：Docker（单容器，前后端同源）+ Zeabur
 
-For the thinking behind tududi, read:
-
-- [Designing a Life Management System That Doesn't Fight Back](https://medium.com/@chrisveleris/designing-a-life-management-system-that-doesnt-fight-back-2fd58773e857)
-- [From Task to Table: How I Finally Got to the Korean Burger](https://medium.com/@chrisveleris/from-task-to-table-how-i-finally-got-to-the-korean-burger-01245a14d491)
-
-## ✨ Features
-
-- **Task Management**: Create, update, and delete tasks. Mark tasks as completed and view them by different filters (Today, Upcoming, Someday). Order them by Name, Due Date, Date Created, or Priority.
-- **Subtasks**: Break down complex tasks into smaller, manageable subtasks with progress tracking and seamless navigation.
-- **Recurring Tasks**: Comprehensive recurring task system with intelligent parent-child relationships:
-    - **Multiple Recurrence Patterns**: Daily, weekly, monthly, monthly on specific weekdays, and monthly last day
-    - **Completion-Based Recurrence**: Option to repeat based on completion date rather than due date
-    - **Smart Parent-Child Linking**: Generated task instances maintain connection to their original recurring pattern
-    - **Direct Parent Editing**: Edit recurrence settings directly from any generated task instance
-    - **Flexible Scheduling**: Set custom intervals (every 2 weeks, every 3 months, etc.)
-    - **End Date Control**: Optional end dates for recurring series
-- **Project Sharing & Collaboration**: Share projects with team members and collaborate effectively
-- **Quick Notes**: Create, update, delete, or assign text notes to projects.
-- **Tags**: Create tags for tasks and notes to enhance organization.
-- **Project Tracking**: Organize tasks into projects. Each project can contain multiple tasks and/or multiple notes.
-- **Area Categorization**: Group projects into areas for better organization and focus.
-- **Due Date Tracking**: Set due dates for tasks and view them based on due date categories.
-- **Responsive Design**: Accessible from various devices, ensuring a consistent experience across desktops, tablets, and mobile phones.
-- **Multi-Language Support**: Available in 24 languages with full localization support for a truly global productivity experience.
-- **Telegram Integration**:
-    - Create tasks directly through Telegram messages
-    - Receive daily digests of your tasks
-    - Quick capture of ideas and todos on the go
-- **Open API & Access Tokens**: Versioned Swagger docs exposed at `/api/v1` plus personal API keys for integrating tududi with your own tooling or automations.
-- **OIDC/SSO Authentication**: Enterprise-ready Single Sign-On support with:
-    - Multiple OIDC providers (Google, Okta, Keycloak, Authentik, PocketID, Azure AD, and more)
-    - Just-In-Time (JIT) user provisioning
-    - Account linking for hybrid authentication
-    - Simple .env-based configuration perfect for self-hosters
-    - Automatic admin role assignment based on email domains
-- **CalDAV Synchronization**: Industry-standard CalDAV protocol support for seamless task syncing:
-    - Bidirectional sync with CalDAV servers (Nextcloud, Baikal, and more)
-    - Access tasks from popular clients (tasks.org, Apple Reminders, Thunderbird, Evolution)
-    - Full recurring task support with RRULE
-    - Conflict detection and resolution
-    - Background automatic synchronization
-    - HTTP Basic Authentication for CalDAV clients
-
-## 🗺️ Roadmap
-
-Check out our [GitHub Project](https://github.com/users/chrisvel/projects/2) for planned features and progress.
-
-## 🛠️ Getting Started
-
-Get up and running quickly with our comprehensive documentation:
-
-### Quick Start
+## 🚀 本地运行
 
 ```bash
-docker pull chrisvel/tududi:latest
-
-docker run \
-  -e TUDUDI_USER_EMAIL=admin@example.com \
-  -e TUDUDI_USER_PASSWORD=your-secure-password \
-  -e TUDUDI_SESSION_SECRET=$(openssl rand -hex 64) \
-  -v ~/tududi_db:/app/backend/db \
-  -v ~/tududi_uploads:/app/backend/uploads \
-  -p 3002:3002 \
-  -d chrisvel/tududi:latest
-```
-
-Navigate to [http://localhost:3002](http://localhost:3002) and login with your credentials.
-
-### Reverse Proxy Setup
-
-When running behind a reverse proxy (Caddy, Nginx, Traefik, etc.), set `TUDUDI_TRUST_PROXY` so that Express correctly reads client IPs from `X-Forwarded-For` headers. Without this, `express-rate-limit` will log a validation error.
-
-```bash
-docker run \
-  -e TUDUDI_TRUST_PROXY=true \
-  -e TUDUDI_ALLOWED_ORIGINS=https://your-domain.com \
-  ...
-```
-
-| Value | Meaning |
-|-------|---------|
-| `true` | Trust all proxies (simplest option for single-proxy setups) |
-| `1` | Trust the first hop only |
-| `loopback` | Trust loopback addresses (127.0.0.1/::1) |
-| `172.16.0.0/12` | Trust a specific subnet |
-
-### OIDC/SSO Authentication
-
-Tududi supports Single Sign-On via OpenID Connect (OIDC), allowing users to authenticate with external identity providers.
-
-**Quick Setup (Single Provider):**
-
-```bash
-docker run \
-  -e OIDC_ENABLED=true \
-  -e OIDC_PROVIDER_NAME=Google \
-  -e OIDC_PROVIDER_SLUG=google \
-  -e OIDC_ISSUER_URL=https://accounts.google.com \
-  -e OIDC_CLIENT_ID=your-client-id.apps.googleusercontent.com \
-  -e OIDC_CLIENT_SECRET=your-client-secret \
-  -e OIDC_SCOPE="openid profile email" \
-  -e OIDC_AUTO_PROVISION=true \
-  -e BASE_URL=https://your-domain.com \
-  ...
-```
-
-**Multiple Providers:**
-
-```bash
-# Provider 1: Google
--e OIDC_PROVIDER_1_NAME=Google \
--e OIDC_PROVIDER_1_SLUG=google \
--e OIDC_PROVIDER_1_ISSUER=https://accounts.google.com \
--e OIDC_PROVIDER_1_CLIENT_ID=xxx \
--e OIDC_PROVIDER_1_CLIENT_SECRET=xxx \
-
-# Provider 2: Company SSO
--e OIDC_PROVIDER_2_NAME="Company SSO" \
--e OIDC_PROVIDER_2_SLUG=okta \
--e OIDC_PROVIDER_2_ISSUER=https://company.okta.com \
--e OIDC_PROVIDER_2_CLIENT_ID=yyy \
--e OIDC_PROVIDER_2_CLIENT_SECRET=yyy \
--e OIDC_PROVIDER_2_ADMIN_EMAIL_DOMAINS=company.com \
-```
-
-**Supported Providers:** Google, Okta, Keycloak, Authentik, PocketID, Azure AD, and any OIDC-compliant provider
-
-**Key Features:**
-- Automatic user provisioning on first login
-- Account linking for existing users
-- Admin role assignment based on email domains
-- Hybrid authentication (email/password + SSO)
-
-**Documentation:** See [docs/10-oidc-sso.md](docs/10-oidc-sso.md) for detailed setup guides and provider-specific configuration.
-
-### CalDAV Synchronization
-
-Tududi supports the industry-standard CalDAV protocol, enabling seamless task synchronization with popular CalDAV clients and servers.
-
-**Quick Setup:**
-
-```bash
-docker run \
-  -e CALDAV_ENABLED=true \
-  -e ENCRYPTION_KEY=$(openssl rand -hex 32) \
-  ...
-```
-
-**Supported Clients:**
-- **tasks.org** (Android/iOS) - Full task management with recurring tasks
-- **Apple Reminders** (iOS/macOS) - Native iOS/macOS integration
-- **Thunderbird** (Desktop) - Advanced task features
-- **Evolution** (Linux) - Full CalDAV compatibility
-
-**Sync with External Servers:**
-
-Connect Tududi to external CalDAV servers like Nextcloud, Baikal, or other CalDAV-compatible services for bidirectional synchronization.
-
-**Key Features:**
-- Bidirectional sync (local ↔ remote)
-- Full recurring task support with RRULE
-- Conflict detection and resolution
-- Background automatic synchronization
-- HTTP Basic Authentication
-- Encrypted password storage (AES-256-GCM)
-
-**Documentation:** See [docs/11-caldav-sync.md](docs/11-caldav-sync.md) for client setup guides, server configuration, and troubleshooting.
-
-### 📚 Documentation
-
-For detailed setup instructions, configuration options, and getting started guides, visit:
-
-**[docs.tududi.com](https://docs.tududi.com)**
-
-- **[Installation Guide](https://docs.tududi.com/getting-started/installation)** - Docker, development setup, and deployment
-- **[Configuration](https://docs.tududi.com/getting-started/configuration)** - Environment variables and advanced settings
-- **[First Steps](https://docs.tududi.com/getting-started/first-steps)** - Learn the basics and get productive
-- **[Project Sharing](https://docs.tududi.com/features/project-sharing)** - Collaborate with your team
-
-## 🚧 Development
-
-Want to contribute or run Tududi from source? Check out our comprehensive development guide:
-
-**[Development Setup Guide](https://docs.tududi.com/#-development-setup)**
-
-Quick overview:
-
-```bash
-# Clone and install
-git clone https://github.com/chrisvel/tududi.git
-cd tududi
 npm install
-
-# Start development servers
-npm run backend:dev   # Terminal 1 - Backend on :3001
-npm run frontend:dev  # Terminal 2 - Frontend on :8080
+npm run db:init
+# 配置环境变量（见下），然后：
+npm start          # 前端 dev server + 后端
 ```
 
-For database management, testing, and detailed development instructions, see [docs.tududi.com](https://docs.tududi.com)
+### 环境变量
 
-## 🔌 API
+| 变量 | 说明 |
+|---|---|
+| `DEEPSEEK_API_KEY` | DeepSeek API Key（AI 拆分功能必需） |
+| `TUDUDI_USER_EMAIL` / `TUDUDI_USER_PASSWORD` | 启动时自动创建的账号 |
+| `DEMO_MODE` | `true` 时登录页展示上述账号供访客体验 |
+| `AI_DAILY_LIMIT` | AI 接口全局每日调用上限（默认 100） |
+| `TUDUDI_SESSION_SECRET` | 会话密钥（生产必填） |
 
-Tududi provides a comprehensive REST API for integration with external tools and automation workflows.
+### Docker
 
-**Base URL:** `http://localhost:8080/api/v1`
-
-**Key Features:**
-- Complete CRUD operations for tasks, projects, notes, and areas
-- Personal API keys for secure access
-- Swagger documentation available at `/api-docs` (requires authentication)
-- Support for recurring tasks, subtasks, and tag management
-- Real-time task metrics and productivity insights
-
-**Authentication:** Uses session cookies or Bearer token authentication. Generate personal API keys through the web interface for programmatic access.
-
-**Quick Example:**
 ```bash
-# Get all tasks
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-     http://localhost:3002/api/v1/tasks
-
-# Create a new task
-curl -X POST \
-     -H "Authorization: Bearer YOUR_API_KEY" \
-     -H "Content-Type: application/json" \
-     -d '{"name":"Complete API documentation","priority":"medium"}' \
-     http://localhost:3002/api/v1/task
+docker build -t donext .
+docker run -p 3002:3002 \
+  -e TUDUDI_SESSION_SECRET=$(openssl rand -hex 64) \
+  -e TUDUDI_USER_EMAIL=demo@example.com \
+  -e TUDUDI_USER_PASSWORD=demo1234 \
+  -e DEMO_MODE=true \
+  -e DEEPSEEK_API_KEY=sk-... \
+  -v ./db:/app/backend/db \
+  donext
 ```
 
-For full API documentation, visit `/api-docs` after authentication or check the Swagger schema definitions in [`backend/config/swagger.js`](backend/config/swagger.js).
+## 📄 License & 致谢
 
-## 🤝 Contributing
-
-Contributions to tududi are welcome! Whether it's bug fixes, new features, documentation improvements, or translations, we appreciate your help.
-
-**Before you start:**
-
-- Check [existing issues](https://github.com/chrisvel/tududi/issues) and [discussions](https://github.com/chrisvel/tududi/discussions) to avoid duplicate work
-- For bugs, [open an issue](https://github.com/chrisvel/tududi/issues/new/choose) with the bug report template
-- For feature requests, start a [discussion](https://github.com/chrisvel/tududi/discussions/categories/feature-requests)
-
-**Quick contribution workflow:**
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes following our [code standards](.github/CONTRIBUTING.md#code-standards)
-4. Run linting and tests: `npm run pre-push`
-5. Commit your changes with a clear message
-6. Push to your fork and open a Pull Request
-
-**Read our [Contributing Guide](.github/CONTRIBUTING.md) for:**
-
-- Development setup and workflow
-- Code standards and best practices
-- Testing requirements
-- Database migrations
-- Translation guidelines
-- Pull request checklist
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## 📬 Contact
-
-For questions or comments, please [open an issue](https://github.com/chrisvel/tududi/issues) or contact the developer directly.
-
-Join the tududi community:
-
-[![Discord](https://img.shields.io/badge/Discord-Join%20Server-7289da?logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/fkbeJ9CmcH)
-[![Reddit](https://img.shields.io/reddit/subreddit-subscribers/tududi?color=ff4500&label=Reddit&logo=reddit&logoColor=white&style=for-the-badge)](https://www.reddit.com/r/tududi/)
-
-## 🌟 Please check my other projects!
-
-- **[Reconya](https://reconya.com)** - Network reconnaissance and asset discovery tool
-- **[BreachHarbor](https://breachharbor.com)** - Cybersecurity suite for digital asset protection
-- **[Hevetra](https://hevetra.com)** - Digital tracking for child health milestones
-
-# Screenshots
-
-![Light Mode Screenshot](screenshots/all-light.png)
-
-![Dark Mode Screenshot](screenshots/all-dark.png)
-
----
-
-README created by [Chris Veleris](https://github.com/chrisvel) for `tududi`.
+MIT。基于 [chrisvel/tududi](https://github.com/chrisvel/tududi) 二次开发，保留其 MIT 版权声明（见 [LICENSE](LICENSE)）。感谢上游作者们的出色工作。

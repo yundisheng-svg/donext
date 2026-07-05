@@ -15,6 +15,10 @@ const Login: React.FC = () => {
     const [oidcProviders, setOidcProviders] = useState<
         Array<{ slug: string; name: string }>
     >([]);
+    const [demoAccount, setDemoAccount] = useState<{
+        email: string;
+        password: string;
+    } | null>(null);
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -107,6 +111,26 @@ const Login: React.FC = () => {
             }
         };
         fetchProviders();
+    }, []);
+
+    // Fetch demo credentials (only present when server runs with DEMO_MODE=true)
+    useEffect(() => {
+        const fetchDemoInfo = async () => {
+            try {
+                const response = await fetch(getApiPath('config'), {
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.demo?.email) {
+                        setDemoAccount(data.demo);
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching public config:', err);
+            }
+        };
+        fetchDemoInfo();
     }, []);
 
     // Check if password authentication is enabled
@@ -212,6 +236,29 @@ const Login: React.FC = () => {
                                 <div className="mb-4 text-center text-red-500">
                                     {error}
                                 </div>
+                            )}
+
+                            {demoAccount && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEmail(demoAccount.email);
+                                        setPassword(demoAccount.password);
+                                    }}
+                                    className="w-full mb-6 px-4 py-3 rounded-lg border border-dashed border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-left hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                                    data-testid="demo-account-hint"
+                                >
+                                    <span className="block text-sm font-medium text-blue-700 dark:text-blue-300">
+                                        {t(
+                                            'auth.demo_hint',
+                                            'Try the demo — click to fill in credentials'
+                                        )}
+                                    </span>
+                                    <span className="block text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                        {demoAccount.email} /{' '}
+                                        {demoAccount.password}
+                                    </span>
+                                </button>
                             )}
 
                             <OIDCProviderButtons providers={oidcProviders} />

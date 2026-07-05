@@ -15,6 +15,15 @@ const authController = {
         const config = getConfig();
         res.json({
             fileUploadLimitMB: config.fileUploadLimitMB,
+            // Demo credentials shown on the login page when DEMO_MODE=true,
+            // so visitors (e.g. recruiters) can try the app in one click.
+            demo:
+                process.env.DEMO_MODE === 'true'
+                    ? {
+                          email: process.env.TUDUDI_USER_EMAIL || '',
+                          password: process.env.TUDUDI_USER_PASSWORD || '',
+                      }
+                    : null,
         });
     },
 
