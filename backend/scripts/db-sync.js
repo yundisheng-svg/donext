@@ -10,12 +10,15 @@ const { sequelize } = require('../models');
 
 async function syncDatabase() {
     try {
-        console.log('Syncing database...');
+        console.log('Syncing database (alter mode)...');
 
-        await sequelize.sync();
+        // alter:true adds any missing columns to existing tables — required so
+        // migration-added columns (e.g. users.ai_daily_brief) exist even when the
+        // migration chain fails partway on a partially-built schema.
+        await sequelize.sync({ alter: true });
 
         console.log('✅ Database synchronized successfully');
-        console.log('All tables have been created (existing data preserved)');
+        console.log('All tables/columns are up to date (existing data preserved)');
         process.exit(0);
     } catch (error) {
         console.error('❌ Error syncing database:', error.message);
