@@ -92,7 +92,8 @@ echo "Running database migrations..."
 if npx sequelize-cli db:migrate --config config/database.js; then
   echo "Migrations completed successfully"
 else
-  echo "Migration failed, but continuing startup (may be expected for new installations)"
+  echo "Migration failed, running schema sync as fallback..."
+  node scripts/db-sync.js
 fi
 
 if [ -n "${TUDUDI_USER_EMAIL:-}" ] && [ -n "${TUDUDI_USER_PASSWORD:-}" ]; then
