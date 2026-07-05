@@ -25,7 +25,8 @@ RUN npm install --no-audit --no-fund
 # Copy source code
 COPY . ./
 
-# Build frontend
+# Build frontend (explicitly add .bin to PATH to work around npm 11.x + NODE_ENV=production)
+ENV PATH="/app/node_modules/.bin:$PATH"
 RUN NODE_ENV=production npm run frontend:build
 
 # Run backend tests
