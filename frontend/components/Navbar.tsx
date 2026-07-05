@@ -216,7 +216,7 @@ const Navbar: React.FC<NavbarProps> = ({
                     </button>
 
                     <button
-                        onClick={() => navigate('/inbox')}
+                        onClick={() => navigate('/tasks')}
                         className="flex items-center bg-blue-500 hover:bg-blue-600 text-white rounded-full focus:outline-none transition-all duration-200 px-2 py-2 md:px-3 md:py-2"
                         aria-label={t('navigation.quickInboxCapture')}
                         title={t('navigation.quickInboxCapture')}

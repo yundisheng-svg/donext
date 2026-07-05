@@ -1228,7 +1228,7 @@ const TaskDetails: React.FC = () => {
                             )}
                         </p>
                         <button
-                            onClick={() => navigate('/today')}
+                            onClick={() => navigate('/tasks')}
                             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
                         >
                             {t('common.goToToday', 'Go to Today')}

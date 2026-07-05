@@ -256,6 +256,7 @@ const viewsModule = require('./modules/views');
 const mcpModule = require('./modules/mcp');
 const oidcModule = require('./modules/oidc');
 const aiAssistantModule = require('./modules/ai-assistant');
+const aiTasksModule = require('./modules/ai-tasks');
 const peopleModule = require('./modules/people');
 
 // Swagger documentation - enabled by default, protected by authentication
@@ -342,6 +343,7 @@ const registerApiRoutes = (basePath) => {
     app.use(basePath, notificationsModule.routes);
     app.use(basePath, mcpModule.routes);
     app.use(basePath, aiAssistantModule.routes);
+    app.use(basePath, aiTasksModule.routes);
     app.use(basePath, peopleModule.routes);
 };
 

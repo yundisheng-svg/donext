@@ -3,17 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Area } from '../entities/Area';
 import { Note } from '../entities/Note';
 import { Tag } from '../entities/Tag';
-import SidebarAreas from './Sidebar/SidebarAreas';
 import SidebarFooter from './Sidebar/SidebarFooter';
 import SidebarNav from './Sidebar/SidebarNav';
 import SidebarNotes from './Sidebar/SidebarNotes';
-import SidebarHabits from './Sidebar/SidebarHabits';
 import SidebarProjects from './Sidebar/SidebarProjects';
-import SidebarTags from './Sidebar/SidebarTags';
-import SidebarViews from './Sidebar/SidebarViews';
-import SidebarPeople from './Sidebar/SidebarPeople';
 import { KeyboardShortcutsConfig } from '../utils/keyboardShortcutsService';
-import { useStore } from '../store/useStore';
 
 interface SidebarProps {
     isSidebarOpen: boolean;
@@ -52,7 +46,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const habitsEnabled = useStore((state) => state.userSettingsStore.habitsEnabled);
 
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -95,37 +88,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                             handleNavClick={handleNavClick}
                             openNoteModal={openNoteModal}
                             notes={notes}
-                            location={location}
-                            isDarkMode={isDarkMode}
-                        />
-                        {habitsEnabled && (
-                            <SidebarHabits
-                                handleNavClick={handleNavClick}
-                                location={location}
-                                isDarkMode={isDarkMode}
-                                openNewHabit={openNewHabit}
-                            />
-                        )}
-                        <SidebarAreas
-                            handleNavClick={handleNavClick}
-                            areas={areas}
-                            location={location}
-                            isDarkMode={isDarkMode}
-                            openAreaModal={openAreaModal}
-                        />
-                        <SidebarTags
-                            handleNavClick={handleNavClick}
-                            location={location}
-                            isDarkMode={isDarkMode}
-                            openTagModal={openTagModal}
-                            tags={tags}
-                        />
-                        <SidebarPeople
-                            handleNavClick={handleNavClick}
-                            location={location}
-                        />
-                        <SidebarViews
-                            handleNavClick={handleNavClick}
                             location={location}
                             isDarkMode={isDarkMode}
                         />

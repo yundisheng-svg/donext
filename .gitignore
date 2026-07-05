@@ -58,3 +58,8 @@ backend/tests/test-files/
 # Temporary files
 tmp/
 *.bak
+
+# local databases & backups
+backend/db/
+*.sqlite
+*.sqlite3.bak-*

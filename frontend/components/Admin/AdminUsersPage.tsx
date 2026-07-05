@@ -508,7 +508,7 @@ const AdminUsersPage: React.FC = () => {
                     t('admin.failedToLoadUsers', 'Failed to load users')
             );
             if (err.message === t('admin.forbidden', 'Forbidden'))
-                navigate('/today');
+                navigate('/tasks');
         } finally {
             setLoading(false);
         }

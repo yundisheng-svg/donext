@@ -1,18 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Location } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-    CalendarDaysIcon,
-    InboxIcon,
     ListBulletIcon,
-    ClockIcon,
     CalendarIcon,
     Squares2X2Icon,
     ViewColumnsIcon,
 } from '@heroicons/react/24/solid';
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useStore } from '../../store/useStore';
-import { loadInboxItemsToStore } from '../../utils/inboxService';
 
 interface SidebarNavProps {
     handleNavClick: (path: string, title: string, icon: JSX.Element) => void;
@@ -27,45 +23,21 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     openTaskModal,
 }) => {
     const { t } = useTranslation();
-    const store = useStore();
     const eisenhowerEnabled = useStore((state) => state.userSettingsStore.eisenhowerEnabled);
     const kanbanEnabled = useStore((state) => state.userSettingsStore.kanbanEnabled);
     const calendarEnabled = useStore((state) => state.userSettingsStore.calendarEnabled);
 
-    const inboxItemsCount = store.inboxStore.pagination.total;
-
-    useEffect(() => {
-        loadInboxItemsToStore(false).catch(console.error);
-    }, []);
-
     const allNavLinks = [
         {
-            path: '/inbox',
-            title: t('sidebar.inbox', 'Inbox'),
-            icon: <InboxIcon className="h-5 w-5" />,
-        },
-        {
-            path: '/today',
-            title: t('sidebar.today', 'Today'),
-            icon: <CalendarDaysIcon className="h-5 w-5" />,
-            query: 'type=today',
-        },
-        {
-            path: '/upcoming?status=active',
-            title: t('sidebar.upcoming', 'Upcoming'),
-            icon: <ClockIcon className="h-5 w-5" />,
+            path: '/tasks',
+            title: t('sidebar.allTasks', 'All Tasks'),
+            icon: <ListBulletIcon className="h-5 w-5" />,
         },
         {
             path: '/calendar',
             title: t('sidebar.calendar', 'Calendar'),
             icon: <CalendarIcon className="h-5 w-5" />,
             userFlag: 'calendar',
-        },
-        {
-            path: '/tasks?status=active',
-            title: t('sidebar.allTasks', 'All Tasks'),
-            icon: <ListBulletIcon className="h-5 w-5" />,
-            query: 'status=active',
         },
         {
             path: '/eisenhower',
@@ -82,38 +54,15 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     ];
 
     const navLinks = allNavLinks.filter((link) => {
-        if (link.userFlag === 'eisenhower') {
-            return eisenhowerEnabled;
-        }
-        if (link.userFlag === 'kanban') {
-            return kanbanEnabled;
-        }
-        if (link.userFlag === 'calendar') {
-            return calendarEnabled;
-        }
+        if (link.userFlag === 'eisenhower') return eisenhowerEnabled;
+        if (link.userFlag === 'kanban') return kanbanEnabled;
+        if (link.userFlag === 'calendar') return calendarEnabled;
         return true;
     });
 
-    const isActive = (path: string, query?: string) => {
-        if (path === '/inbox' || path === '/today' || path === '/calendar' || path === '/eisenhower' || path === '/kanban') {
-            const isPathMatch = location.pathname === path;
-            return isPathMatch
-                ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
-                : 'text-gray-700 dark:text-gray-300';
-        }
-
-        if (path.startsWith('/upcoming')) {
-            const isPathMatch = location.pathname === '/upcoming';
-            return isPathMatch
-                ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
-                : 'text-gray-700 dark:text-gray-300';
-        }
-
-        const isPathMatch = location.pathname === '/tasks';
-        const isQueryMatch = query
-            ? location.search.includes(query)
-            : location.search === '';
-        return isPathMatch && isQueryMatch
+    const isActive = (path: string) => {
+        const isPathMatch = location.pathname === path;
+        return isPathMatch
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
             : 'text-gray-700 dark:text-gray-300';
     };
@@ -127,10 +76,9 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
                             onClick={() =>
                                 handleNavClick(link.path, link.title, link.icon)
                             }
-                            data-testid={`sidebar-nav-${link.path.replace(/^\//, '').replace(/\?.*$/, '')}`}
+                            data-testid={`sidebar-nav-${link.path.replace(/^\//, '')}`}
                             className={`w-full text-left px-4 py-1 flex items-center justify-between rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ${isActive(
-                                link.path,
-                                link.query
+                                link.path
                             )}`}
                         >
                             <div className="flex items-center">
@@ -138,15 +86,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
                                 <span className="ml-2">{link.title}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                {link.path === '/inbox' &&
-                                    inboxItemsCount > 0 && (
-                                        <span className="text-sm font-bold text-blue-500 dark:text-blue-400">
-                                            {inboxItemsCount > 99
-                                                ? '99+'
-                                                : inboxItemsCount}
-                                        </span>
-                                    )}
-                                {link.path === '/tasks?status=active' && (
+                                {link.path === '/tasks' && (
                                     <div
                                         role="button"
                                         tabIndex={0}

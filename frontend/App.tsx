@@ -7,12 +7,6 @@ import OIDCCallback from './components/Auth/OIDCCallback';
 import NotFound from './components/Shared/NotFound';
 import ProjectDetails from './components/Project/ProjectDetails';
 import Projects from './components/Projects';
-import AreaDetails from './components/Area/AreaDetails';
-import Areas from './components/Areas';
-import TagDetails from './components/Tag/TagDetails';
-import Tags from './components/Tags';
-import Views from './components/Views';
-import ViewDetail from './components/ViewDetail';
 import Notes from './components/Notes';
 import NoteDetails from './components/Note/NoteDetails';
 import Calendar from './components/Calendar';
@@ -21,21 +15,14 @@ import About from './components/About';
 import BackupRestore from './components/Backup/BackupRestore';
 import Layout from './Layout';
 import { User } from './entities/User';
-import TasksToday from './components/Task/TasksToday';
 import TaskDetails from './components/Task/TaskDetails';
 import LoadingScreen from './components/Shared/LoadingScreen';
-import InboxItems from './components/Inbox/InboxItems';
-import Habits from './components/Habits/Habits';
-import HabitDetails from './components/Habits/HabitDetails';
 import EisenhowerMatrix from './components/Eisenhower/EisenhowerMatrix';
 import KanbanBoard from './components/Kanban/KanbanBoard';
-import PeopleList from './components/People/PeopleList';
-import PersonDetails from './components/People/PersonDetails';
 import { setCurrentUser as setUserInStorage } from './utils/userUtils';
 import { getApiPath, getLocalesPath } from './config/paths';
 import { useStore } from './store/useStore';
-// Lazy load Tasks component to prevent issues with tags loading
-const Tasks = lazy(() => import('./components/Tasks'));
+const AllTasks = lazy(() => import('./components/AllTasks'));
 
 const App: React.FC = () => {
     const { i18n } = useTranslation();
@@ -204,29 +191,11 @@ const App: React.FC = () => {
                         >
                             <Route
                                 index
-                                element={<Navigate to="/today" replace />}
+                                element={<Navigate to="/tasks" replace />}
                             />
-                            <Route path="/today" element={<TasksToday />} />
                             <Route
                                 path="/task/:uid"
                                 element={<TaskDetails />}
-                            />
-                            <Route
-                                path="/upcoming"
-                                element={
-                                    <Suspense
-                                        fallback={
-                                            <div className="p-4">
-                                                {i18n.t(
-                                                    'common.loading',
-                                                    'Loading...'
-                                                )}
-                                            </div>
-                                        }
-                                    >
-                                        <Tasks />
-                                    </Suspense>
-                                }
                             />
                             <Route
                                 path="/tasks"
@@ -241,34 +210,16 @@ const App: React.FC = () => {
                                             </div>
                                         }
                                     >
-                                        <Tasks />
+                                        <AllTasks />
                                     </Suspense>
                                 }
                             />
                             <Route path="/eisenhower" element={<EisenhowerMatrix />} />
                             <Route path="/kanban" element={<KanbanBoard />} />
-                            <Route path="/inbox" element={<InboxItems />} />
-                            <Route path="/habits" element={<Habits />} />
-                            <Route
-                                path="/habit/:uid"
-                                element={<HabitDetails />}
-                            />
                             <Route path="/projects" element={<Projects />} />
                             <Route
                                 path="/project/:uidSlug"
                                 element={<ProjectDetails />}
-                            />
-                            <Route path="/areas" element={<Areas />} />
-                            <Route path="/area/:uidSlug" element={<AreaDetails />} />
-                            <Route path="/tags" element={<Tags />} />
-                            <Route
-                                path="/tag/:uidSlug"
-                                element={<TagDetails />}
-                            />
-                            <Route path="/views" element={<Views />} />
-                            <Route
-                                path="/views/:uid"
-                                element={<ViewDetail />}
                             />
                             <Route path="/notes" element={<Notes />} />
                             <Route path="/notes/:uid" element={<Notes />} />
@@ -292,8 +243,6 @@ const App: React.FC = () => {
                                 element={<About isDarkMode={isDarkMode} />}
                             />
                             <Route path="/backup" element={<BackupRestore />} />
-                            <Route path="/people" element={<PeopleList />} />
-                            <Route path="/person/:uid" element={<PersonDetails />} />
                             <Route
                                 path="/admin/users"
                                 element={
@@ -315,7 +264,7 @@ const App: React.FC = () => {
                                             )}
                                         </React.Suspense>
                                     ) : (
-                                        <Navigate to="/today" replace />
+                                        <Navigate to="/tasks" replace />
                                     )
                                 }
                             />

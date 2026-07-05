@@ -80,6 +80,10 @@ const CalDAVRemoteCalendar = require('./caldav_remote_calendar')(sequelize);
 const CalendarToken = require('./calendar_token')(sequelize);
 const Goal = require('./goal')(sequelize);
 const Person = require('./person')(sequelize);
+const AiInputLog = require('./ai_input_log')(sequelize);
+
+User.hasMany(AiInputLog, { foreignKey: 'user_id' });
+AiInputLog.belongsTo(User, { foreignKey: 'user_id' });
 
 User.hasMany(Area, { foreignKey: 'user_id' });
 Area.belongsTo(User, { foreignKey: 'user_id' });
@@ -329,4 +333,5 @@ module.exports = {
     CalDAVRemoteCalendar,
     CalendarToken,
     Person,
+    AiInputLog,
 };
