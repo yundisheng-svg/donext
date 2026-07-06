@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import PomodoroTimer from './Shared/PomodoroTimer';
 import UniversalSearch from './UniversalSearch/UniversalSearch';
 import NotificationsDropdown from './Notifications/NotificationsDropdown';
-import { getApiPath, getAssetPath } from '../config/paths';
+import { getApiPath } from '../config/paths';
 import { getFeatureFlags, FeatureFlags } from '../utils/featureFlags';
 import { setUserTimezone } from '../utils/dateUtils';
 
@@ -182,17 +182,29 @@ const Navbar: React.FC<NavbarProps> = ({
 
                     <Link
                         to="/"
-                        className={`flex items-center no-underline ml-2 ${isSidebarOpen ? 'sm:ml-0' : 'sm:ml-2'}`}
+                        aria-label="donext"
+                        className={`flex items-center gap-2 no-underline ml-2 ${isSidebarOpen ? 'sm:ml-0' : 'sm:ml-2'}`}
                     >
-                        <img
-                            src={getAssetPath(
-                                isDarkMode
-                                    ? 'wide-logo-light.png'
-                                    : 'wide-logo-dark.png'
-                            )}
-                            alt="tududi"
-                            className="h-9 w-auto"
-                        />
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 shadow-sm">
+                            <svg
+                                viewBox="0 0 24 24"
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth={2.6}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M4 12.5l4.5 4.5L20 5.5" />
+                            </svg>
+                        </span>
+                        <span className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                            do
+                            <span className="text-blue-500 dark:text-blue-400">
+                                next
+                            </span>
+                        </span>
                     </Link>
                 </div>
 
