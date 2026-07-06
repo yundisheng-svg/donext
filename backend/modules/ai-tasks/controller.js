@@ -10,12 +10,20 @@ const { Op } = require('sequelize');
 const AI_DAILY_LIMIT = parseInt(process.env.AI_DAILY_LIMIT || '100', 10);
 
 async function isOverDailyLimit() {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const count = await AiInputLog.count({
-        where: { createdAt: { [Op.gte]: startOfDay } },
-    });
-    return count >= AI_DAILY_LIMIT;
+    // 兜底:如果 ai_input_logs 表还没建好(迁移失败等),不要因为统计失败就
+    // 让整个提交 500,直接放行即可。
+    try {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const count = await AiInputLog.count({
+            where: { created_at: { [Op.gte]: startOfDay } },
+        });
+        return count >= AI_DAILY_LIMIT;
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('isOverDailyLimit check failed:', err.message);
+        return false;
+    }
 }
 
 const controller = {
