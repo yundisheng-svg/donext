@@ -17,38 +17,45 @@ dbConfig = {
     },
 };
 
-const sequelize = new Sequelize(dbConfig);
-
-// SQLite performance optimizations for slow I/O systems (e.g., Synology NAS with HDDs)
+// SQLite performance + concurrency settings.
+// IMPORTANT: these run on EVERY new pooled connection via the afterConnect
+// hook (not just the first one). busy_timeout is per-connection, so if it is
+// only set on one connection the others fail immediately with
+// "SQLITE_BUSY: database is locked" under concurrent writes — which is worse
+// on network-backed volumes. Running them per-connection fixes that.
 if (dbConfig.dialect === 'sqlite') {
-    const pragmas = [
+    const pragmaSql = [
         // WAL mode: sequential writes instead of random I/O, better for Btrfs COW
         'PRAGMA journal_mode=WAL;',
         // Relaxed sync: faster writes with minimal durability risk for single-user app
         'PRAGMA synchronous=NORMAL;',
-        // 5 second busy timeout: prevents "database is locked" errors under load
-        'PRAGMA busy_timeout=5000;',
+        // 15s busy timeout: wait for the lock instead of erroring under load
+        'PRAGMA busy_timeout=15000;',
         // 64MB cache: keeps more data in memory, reduces disk reads
         'PRAGMA cache_size=-64000;',
         // Store temp tables in memory instead of disk
         'PRAGMA temp_store=MEMORY;',
         // Enable memory-mapped I/O (256MB): faster reads on large databases
         'PRAGMA mmap_size=268435456;',
-    ];
+    ].join(' ');
 
-    (async () => {
-        try {
-            for (const pragma of pragmas) {
-                await sequelize.query(pragma);
-            }
-            if (config.environment === 'development') {
-                console.log('SQLite performance optimizations enabled');
-            }
-        } catch (err) {
-            console.error('Failed to set SQLite PRAGMAs:', err.message);
-        }
-    })();
+    dbConfig.hooks = {
+        afterConnect: (connection) =>
+            new Promise((resolve, reject) => {
+                connection.exec(pragmaSql, (err) =>
+                    err ? reject(err) : resolve()
+                );
+            }),
+    };
+
+    // Belt-and-suspenders: auto-retry transient lock errors.
+    dbConfig.retry = {
+        match: [/SQLITE_BUSY/, /database is locked/],
+        max: 5,
+    };
 }
+
+const sequelize = new Sequelize(dbConfig);
 
 const User = require('./user')(sequelize);
 const Area = require('./area')(sequelize);
