@@ -206,15 +206,28 @@ const Login: React.FC = () => {
             {/* Navbar */}
             <nav className="fixed top-0 left-0 right-0 z-50 text-gray-900 dark:text-white">
                 <div className="h-16 flex items-center px-4 sm:px-6 lg:px-8">
-                    <img
-                        src={getAssetPath(
-                            isDarkMode
-                                ? 'wide-logo-light.png'
-                                : 'wide-logo-dark.png'
-                        )}
-                        alt="tududi"
-                        className="h-9 w-auto"
-                    />
+                    <span className="flex items-center gap-2" aria-label="donext">
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 shadow-sm">
+                            <svg
+                                viewBox="0 0 24 24"
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth={2.6}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M4 12.5l4.5 4.5L20 5.5" />
+                            </svg>
+                        </span>
+                        <span className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                            do
+                            <span className="text-blue-500 dark:text-blue-400">
+                                next
+                            </span>
+                        </span>
+                    </span>
                 </div>
             </nav>
 
