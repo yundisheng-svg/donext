@@ -13,7 +13,13 @@ const SPLIT_RULES_PATH = path.join(__dirname, 'TASK_SPLIT_RULES.md');
 
 // 每次调用都重新读取这个文件,这样修改规则文档立即生效,不需要重启服务。
 function loadSplitRules() {
-    return fs.readFileSync(SPLIT_RULES_PATH, 'utf8');
+    try {
+        return fs.readFileSync(SPLIT_RULES_PATH, 'utf8');
+    } catch (err) {
+        // .md 文件没随镜像打包时(被 .dockerignore 排除等),回退到内置副本,
+        // 保证 AI 拆分依然能用。
+        return require('./TASK_SPLIT_RULES.js');
+    }
 }
 
 function getClient() {

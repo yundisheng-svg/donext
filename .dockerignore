@@ -115,3 +115,7 @@ backend-express/tests/
 **/*.bak
 **/*.backup
 **/*.orig
+# Keep the AI task-splitting rules file — it is read at runtime by the
+# backend (backend/modules/ai-tasks/service.js). The blanket **/*.md rule
+# above would otherwise strip it from the image and break AI splitting.
+!backend/modules/ai-tasks/TASK_SPLIT_RULES.md
