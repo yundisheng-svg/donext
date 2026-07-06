@@ -20,6 +20,18 @@ function errorHandler(err, req, res, next) {
         return res.status(err.statusCode).json(err.toJSON());
     }
 
+    // Handle CSRF token errors (from lusca). Return 403 with a clear code so
+    // the client can refresh its token and retry instead of seeing a 500.
+    if (
+        err.code === 'EBADCSRFTOKEN' ||
+        /csrf token (mismatch|missing|invalid)/i.test(err.message || '')
+    ) {
+        return res.status(403).json({
+            error: 'CSRF token invalid or expired. Please retry.',
+            code: 'CSRF_ERROR',
+        });
+    }
+
     // Handle Sequelize validation errors
     if (err.name === 'SequelizeValidationError') {
         return res.status(400).json({

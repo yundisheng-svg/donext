@@ -8,7 +8,7 @@ import React, {
 import { Task } from '../entities/Task';
 import { useToast } from './Shared/ToastContext';
 import { getApiPath } from '../config/paths';
-import { getCsrfToken } from '../utils/csrfService';
+import { fetchWithCsrfRetry } from '../utils/csrfService';
 import {
     FunnelIcon,
     MicrophoneIcon,
@@ -426,14 +426,14 @@ const AllTasks: React.FC = () => {
 
     const patchTask = async (uid: string, fields: Record<string, unknown>) => {
         try {
-            const response = await fetch(getApiPath(`task/${uid}`), {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-csrf-token': await getCsrfToken(),
-                },
-                body: JSON.stringify(fields),
-            });
+            const response = await fetchWithCsrfRetry(
+                getApiPath(`task/${uid}`),
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fields),
+                }
+            );
             if (!response.ok) throw new Error();
             const updated = await response.json();
             setTasks((prev) =>
@@ -445,11 +445,10 @@ const AllTasks: React.FC = () => {
     };
 
     const deleteTaskByUid = async (uid: string) => {
-        const response = await fetch(
+        const response = await fetchWithCsrfRetry(
             getApiPath(`task/${encodeURIComponent(uid)}`),
             {
                 method: 'DELETE',
-                headers: { 'x-csrf-token': await getCsrfToken() },
             }
         );
         if (!response.ok) throw new Error();
@@ -515,14 +514,14 @@ const AllTasks: React.FC = () => {
         if (!text || aiLoading) return;
         setAiLoading(true);
         try {
-            const response = await fetch(getApiPath('ai/parse-tasks'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-csrf-token': await getCsrfToken(),
-                },
-                body: JSON.stringify({ text }),
-            });
+            const response = await fetchWithCsrfRetry(
+                getApiPath('ai/parse-tasks'),
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text }),
+                }
+            );
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.error || 'AI 拆分失败');
