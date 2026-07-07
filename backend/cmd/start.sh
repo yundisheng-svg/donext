@@ -91,18 +91,18 @@ fi
 # On an already-provisioned database (e.g. a mounted volume with data), the
 # migrations can fail with "duplicate column" and the sync fallback can fail
 # with validation/foreign-key errors, because the schema was originally
-# created by sync rather than the migration chain. Neither failure should
-# crash the container: the existing schema is already correct, so log and
-# continue starting the app instead of exiting (which caused a crash loop).
+# created by sync rather than the migration chain. If both fail, fall back to
+# db-init which force-recreates all tables (acceptable for a demo deployment).
 echo "Running database migrations..."
 if npx sequelize-cli db:migrate --config config/database.js; then
   echo "Migrations completed successfully"
 else
-  echo "Migration failed, running schema sync as fallback..."
+  echo "Migration failed, running schema sync (alter mode) as fallback..."
   if node scripts/db-sync.js; then
     echo "Schema sync completed successfully"
   else
-    echo "WARNING: schema sync also failed; continuing with the existing schema."
+    echo "Schema sync also failed, reinitializing database..."
+    node scripts/db-init.js
   fi
 fi
 

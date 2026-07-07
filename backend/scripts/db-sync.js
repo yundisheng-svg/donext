@@ -2,7 +2,8 @@
 
 /**
  * Database Sync Script
- * Syncs the database by creating tables if they don't exist (without dropping existing data)
+ * Syncs the database schema to match model definitions.
+ * Uses alter: true to add missing columns without dropping existing data.
  */
 
 require('dotenv').config();
